@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Weather Dashboard</title>
+</head>
+<body style="font-family:Arial;text-align:center;">
+  <h2>🌦 Weather Dashboard</h2>
+  <input id="city" placeholder="Enter city">
+  <button onclick="getWeather()">Search</button>
+
+  <div id="current"></div>
+  <div id="forecast" style="display:flex;justify-content:center;gap:10px;"></div>
+
+  <script>
+    const API_KEY = "623d2d78370b5d4c62eecc662cc479b6"; // replace with your key
+
+    async function getWeather() {
+      const city = document.getElementById("city").value;
+      if (!city) return;
+
+      // current weather
+      let res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${API_KEY}`);
+      let w = await res.json();
+      document.getElementById("current").innerHTML =
+        `<h3>${w.name}</h3><p>${w.main.temp}°C, ${w.weather[0].description}</p>
+         <p>Humidity: ${w.main.humidity}% | Wind: ${w.wind.speed} m/s</p>`;
+
+      // 5-day forecast
+      res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=${API_KEY}`);
+      let f = await res.json();
+      let daily = f.list.filter(x => x.dt_txt.includes("12:00:00"));
+      document.getElementById("forecast").innerHTML = daily.map(d =>
+        `<div><b>${new Date(d.dt_txt).toLocaleDateString('en-US',{weekday:'short'})}</b>
+         <p>${d.main.temp}°C</p><p>${d.weather[0].main}</p></div>`).join('');
+    }
+  </script>
+</body>
+</html>
